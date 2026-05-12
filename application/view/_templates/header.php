@@ -74,6 +74,9 @@
                 } ?> >
                     <a href="<?php echo Config::get('URL'); ?>admin/">Admin</a>
                 </li>
+                <li <?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
+                    <a href="<?php echo Config::get('URL'); ?>register/index">New Account</a>
+                </li>
             <?php endif; ?>
         <?php endif; ?>
         </ul>

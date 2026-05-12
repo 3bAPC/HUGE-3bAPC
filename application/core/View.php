@@ -1,5 +1,7 @@
 <?php
 
+#[AllowDynamicProperties]
+
 /**
  * Class View
  * The part that handles all the output

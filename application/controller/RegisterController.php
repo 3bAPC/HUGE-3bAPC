@@ -22,10 +22,10 @@ class RegisterController extends Controller
      */
     public function index()
     {
-        if (LoginModel::isUserLoggedIn()) {
-            Redirect::home();
-        } else {
+        if (Session::get("user_account_type") == 7) {
             $this->View->render('register/index');
+        } else {
+            Redirect::home();
         }
     }
 
