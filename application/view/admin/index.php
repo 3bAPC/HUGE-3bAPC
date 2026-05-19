@@ -22,6 +22,7 @@
                     <td>User's email</td>
                     <td>Activated ?</td>
                     <td>Link to user's profile</td>
+                    <td>Role</td>
                     <td>suspension Time in days</td>
                     <td>Soft delete</td>
                     <td>Submit</td>
@@ -42,6 +43,18 @@
                             <a href="<?= Config::get('URL') . 'profile/showProfile/' . $user->user_id; ?>">Profile</a>
                         </td>
                         <form action="<?= config::get("URL"); ?>admin/actionAccountSettings" method="post">
+                            <td>
+                                <select id="roleSelection" name="role">
+                                    
+                                    <?php foreach ($this->roles as $role) { ?>
+                                        <option value="<?= $role->id; ?>" <?= ($user->user_account_type == $role->id ? 'selected' : ''); ?>>
+                                            <?= $role->role_name; ?>
+                                        </option>
+                                    <?php } ?>
+
+                                </select>
+                            </td>
+
                             <td><input type="number" name="suspension" /></td>
                             <td><input type="checkbox" name="softDelete" <?php if ($user->user_deleted) { ?> checked <?php } ?> /></td>
                             <td>

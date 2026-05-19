@@ -92,4 +92,21 @@ class AdminModel
             return true;
         }
     }
+
+    public static function setAccountRole(int $roleID, int $userID) {
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $query = $database->prepare("UPDATE users SET user_account_type = :roleID WHERE user_id = :user_id");
+
+        $query->execute(array(
+            ':roleID' => $roleID,
+            ':user_id' => $userID
+        ));
+
+        if ($query->rowCount() == 1) {
+            Session::add('feedback_positive', Text::get('FEEDBACK_USER_ROLE_CHANGED_SUCCESS'));
+            return true;
+        }
+
+    }
 }
