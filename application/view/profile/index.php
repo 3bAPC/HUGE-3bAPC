@@ -1,3 +1,13 @@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#user-table').DataTable();
+    })
+</script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+
 <div class="container">
     <h1>ProfileController/index</h1>
     <div class="box">
@@ -11,7 +21,7 @@
             build things that use profile information of one or multiple/all users.
         </div>
         <div>
-            <table class="overview-table">
+            <table id="user-table" class="overview-table">
                 <thead>
                 <tr>
                     <td>Id</td>
