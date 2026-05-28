@@ -266,3 +266,42 @@ body {
 .red-text {
     color: red;
 }
+
+/* Chat */
+
+.chat-container {
+    display: flex;
+}
+
+/* CHAT USER / GROUP LIST*/
+.chat-users {
+    width: 20%;
+    border: 2px solid green;
+}
+
+/* .chat-user-list {
+    display: grid;
+    grid-template-columns: auto auto;
+    border: 2px solid blue;
+} */
+
+.chat-user {
+    display: flex;
+    border: 2px solid blue;
+}
+
+.chat-user-username {
+    align-self: center;
+}
+
+.chat-button {
+    align-self: center;
+    width: 50px;
+    height: 25px;
+}
+
+/* CHAT PANEL */
+.chat-panel {
+    width: 100%;
+    border: 1px solid red;
+}
