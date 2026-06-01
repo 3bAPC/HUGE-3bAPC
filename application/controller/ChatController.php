@@ -8,6 +8,7 @@ class ChatController extends Controller
     public function __construct()
     {
         parent::__construct();
+        Auth::checkAuthentication();
     }
 
     /**
@@ -16,12 +17,38 @@ class ChatController extends Controller
      */
     public function index()
     {
-        
+        $currentUserID = (int) Session::get('user_id');
+        $selectedChatID = (int) Request::get('chatID');
+        $messages = null;
+
+        if (!empty($selectedChatID)) {
+            $messages = ChatModel::getChatMessages($selectedChatID, $currentUserID);
+        }
 
         $this->View->render('chat/index', array(
-            'users' => UserModel::getPublicProfilesOfAllUsers(),
-            'roles' => UserModel::getAllRoles()
+            'chats' => ChatModel::getDirectChatsOfUser($currentUserID),
+            'messages' => $messages,
+            'selectedChatID' => $selectedChatID
         ));
+    }
+
+    public function createDirectChat() {
+        $currentUserID = (int) Session::get('user_id');
+        $otherUserID = (int) Request::post('user_id');
+
+        if (empty($otherUserID) || $otherUserID === $currentUserID) {
+            Redirect::to('profile/index');
+            return;
+        }
+
+        $chatID = ChatModel::getOrCreateDirectChat($currentUserID, $otherUserID);
+
+        if (!empty($chatID)) {
+            Redirect::to('chat/index?chatID=' . $chatID);
+            return;
+        }
+
+        Redirect::to('profile/index');
     }
 
     /**

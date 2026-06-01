@@ -296,8 +296,8 @@ body {
 
 .chat-button {
     align-self: center;
-    width: 50px;
-    height: 25px;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
 /* CHAT PANEL */

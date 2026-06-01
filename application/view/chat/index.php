@@ -14,30 +14,35 @@
 
             <div class="chat-users">
                 <div class="chat-user-list">
-                    <?php foreach ($this->users as $user) { ?>
-                        <form action="index" method="put">
-                            
-                            <input type="hidden" name="chatID" value="<?= $user->user_id ?>">
-
-                            <div class="chat-user">
-                                <div class="chat-user-avatar">
-                                    <?php if (isset($user->user_avatar_link)) { ?>
-                                        <img src="<?= $user->user_avatar_link; ?>" />
-                                    <?php } ?>
-                                </div>
-
-                                <div class="chat-user-username">
-                                    <span class="chat-user-name"><?= $user->user_name; ?></span>
-                                </div>
-
-                                <button type="submit" class="chat-button">Chat</button>
+                    <?php foreach ($this->chats as $chat) { ?>
+                        <div class="chat-user<?php if ((int) $this->selectedChatID === (int) $chat->chat_id) { echo ' active'; } ?>">
+                            <div class="chat-user-avatar">
+                                <?php if (!empty($chat->chat_avatar_link)) { ?>
+                                    <img src="<?= $chat->chat_avatar_link; ?>" />
+                                <?php } ?>
                             </div>
-                        </form>
+
+                            <div class="chat-user-username">
+                                <span class="chat-user-name"><?= $chat->chat_name; ?></span>
+                            </div>
+
+                            <a href="<?php echo Config::get('URL'); ?>chat/index?chatID=<?php echo $chat->chat_id; ?>" class="chat-button">
+                                Chat
+                            </a>
+                        </div>
                     <?php } ?>
                 </div>
             </div>
 
             <div class="chat-panel">
+                <?php if (!empty($this->messages)) { ?>
+                    <!-- Show Messages -->
+                    <?php foreach ($this->messages as $message) { ?> 
+                        <p><?= $message->content ?></p>
+                    <?php } ?>
+                <?php } else { ?>
+                    <p>No Messages</p>
+                <?php } ?>
             </div>
         </div>
     </div>
