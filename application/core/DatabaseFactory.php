@@ -23,6 +23,7 @@ class DatabaseFactory
 {
     private static $factory;
     private $database;
+    private $mysqli;
 
     public static function getFactory()
     {
@@ -61,4 +62,24 @@ class DatabaseFactory
         }
         return $this->database;
     }
+
+    public function getMysqliConnection() {
+        if (!$this->mysqli) {
+            $this->mysqli = new mysqli(
+                Config::get('DB_HOST'),
+                Config::get('DB_USER'),
+                Config::get('DB_PASS'),
+                Config::get('DB_NAME')
+            );
+
+            if ($this->mysqli->connect_error) {
+                echo "MySQLi Connection failed";
+                return null;
+            }
+
+            echo "MySQLi Connection established";
+        }
+
+        return $this->mysqli;
+    } 
 }
