@@ -163,6 +163,47 @@ class ChatModel {
         }
     }
 
+    public static function sendMessage($chatID, $currentUserID, $message) {
+        $messageContent = trim((string) $message);
+        
+        if (empty($chatID) || $messageContent === '') {
+            Session::add('feedback_negative', 'Message must not be empty!');
+            return false;
+        }
+
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "SELECT 1
+                FROM chat_participants
+                WHERE chat_id = :chat_id
+                    AND user_id = :user_id
+                LIMIT 1";
+        $query = $database->prepare($sql);
+        $query->execute(array(
+            ':chat_id' => $chatID,
+            ':user_id' => $currentUserID
+        ));
+
+        if (!$query->fetch()) {
+            Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+            return false;
+        }
+
+        $sql = "INSERT INTO messages (chat_id, sent_from_id, content)
+                VALUES (:chat_id, :sent_from_id, :content)";
+        $query = $database->prepare($sql);
+        $query->execute(array(
+            ':chat_id' => $chatID,
+            ':sent_from_id' => $currentUserID,
+            ':content' => $messageContent,
+        ));
+
+        if ($query->rowCount() === 1) return true;
+
+        Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+        return false;
+    }
+
     private static function getChatTypeID($typeName) {
         $database = DatabaseFactory::getFactory()->getConnection();
 

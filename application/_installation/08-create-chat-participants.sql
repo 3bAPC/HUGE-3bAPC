@@ -29,8 +29,15 @@ CREATE TABLE IF NOT EXISTS `chat_participants` (
   CONSTRAINT `fk_chat_participants_user_id_users_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci COMMENT='This table defines which users are participants in a chat group';
 
--- Dumping data for table huge.chat_participants: ~0 rows (approximately)
+-- Dumping data for table huge.chat_participants: ~6 rows (approximately)
 DELETE FROM `chat_participants`;
+INSERT INTO `chat_participants` (`chat_id`, `user_id`) VALUES
+	(1, 1),
+	(1, 4),
+	(2, 1),
+	(2, 5),
+	(3, 1),
+	(3, 2);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

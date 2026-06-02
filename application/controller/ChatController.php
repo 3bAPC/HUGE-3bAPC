@@ -51,6 +51,20 @@ class ChatController extends Controller
         Redirect::to('profile/index');
     }
 
+    public function sendMessage() {
+        $userID = (int) Session::get('user_id');
+        $chatID = (int) Request::post('chatID');
+        $message = Request::post('messageContent');
+
+        if (empty($chatID)) {
+            Redirect::to('chat/index?chatID=' . $chatID);
+            return;
+        }
+
+        ChatModel::sendMessage($chatID, $userID, $message);
+        Redirect::to('chat/index?chatID=' . $chatID);
+    }
+
     /**
      * This method controls what happens when you move to /overview/showProfile in your app.
      * Shows the (public) details of the selected user.

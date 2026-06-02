@@ -1,7 +1,60 @@
+/* Chat */
+
+.chat-container {
+    display: flex;
+	border: 1px solid black;
+}
+
+/* CHAT USER / GROUP LIST*/
+.chat-users {
+    width: 20%;
+    border-right: 2px solid #777;
+}
+
+.chat-user {
+    display: flex;
+    border-bottom: 1px solid #777;
+}
+
+.chat-user-username {
+    align-self: center;
+}
+
+.chat-button {
+    align-self: center;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+/* CHAT PANEL */
+.chat-panel {
+    width: 100%;
+    /* border: 2px solid #777; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.action-container {
+    display: flex;
+}
+.action-container form {
+	display: flex;
+	width: 100%;
+	align-items: center;
+}
+
+.message-input {
+    width: 100%;
+}
+
+/* CHAT MESSAGE STYLE */
+
 html { font-family: 'PT Sans', Georgia, serif; }
 
 .message-container {
-	margin: 0 auto;
+	width: 100%;
+    height: 100%;
 	
 	display: flex;
 	flex-flow: column wrap;
@@ -15,25 +68,25 @@ html { font-family: 'PT Sans', Georgia, serif; }
 }
 
 .message-container > .bubble.sender {
-	align-self: flex-start;
-	background-color: #efefef;
-}
-.message-container > .bubble.recipient {
 	align-self: flex-end;
 	background-color: cornflowerblue;
 	color: #fff;
 }
-
-.message-container > .bubble.sender.first { border-bottom-left-radius: 0.1em; }
-.message-container > .bubble.sender.last { border-top-left-radius: 0.1em; }
-.message-container > .bubble.sender.middle {
-	border-bottom-left-radius: 0.1em;
- 	border-top-left-radius: 0.1em;
+.message-container > .bubble.recipient {
+	align-self: flex-start;
+	background-color: #efefef;
 }
 
-.message-container > .bubble.recipient.first { border-bottom-right-radius: 0.1em; }
-.message-container > .bubble.recipient.last { border-top-right-radius: 0.1em; }
-.message-container > .bubble.recipient.middle {
+.message-container > .bubble.sender.first { border-bottom-right-radius: 0.1em; }
+.message-container > .bubble.sender.last { border-top-right-radius: 0.1em; }
+.message-container > .bubble.sender.middle {
 	border-bottom-right-radius: 0.1em;
-	border-top-right-radius: 0.1em;
+ 	border-top-right-radius: 0.1em;
+}
+
+.message-container > .bubble.recipient.first { border-bottom-left-radius: 0.1em; }
+.message-container > .bubble.recipient.last { border-top-left-radius: 0.1em; }
+.message-container > .bubble.recipient.middle {
+	border-bottom-left-radius: 0.1em;
+	border-top-left-radius: 0.1em;
 }

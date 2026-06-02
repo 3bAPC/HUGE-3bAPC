@@ -74,8 +74,12 @@
 
                 <!-- Message Input & Button -->
                 <div class="action-container">
-                    <input class="message-input" type="text" id="messageContent" placeholder="Enter Message">
-                    <button>SendMessage</button>
+                    <form action="<?php echo Config::get('URL'); ?>chat/sendMessage" method="post">
+                        <input type="hidden" name="chatID" value="<?php echo $this->selectedChatID; ?>">
+
+                        <input class="message-input" type="text" name="messageContent" placeholder="Enter Message">
+                        <button type="submit">SendMessage</button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -21,13 +21,16 @@ USE `huge`;
 
 -- Dumping structure for table huge.chat_types
 CREATE TABLE IF NOT EXISTS `chat_types` (
-  `type_id` int(11) NOT NULL DEFAULT 0,
+  `type_id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(50) NOT NULL DEFAULT '0',
   PRIMARY KEY (`type_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci COMMENT='This table defines which chat types exist';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci COMMENT='This table defines which chat types exist';
 
--- Dumping data for table huge.chat_types: ~0 rows (approximately)
+-- Dumping data for table huge.chat_types: ~2 rows (approximately)
 DELETE FROM `chat_types`;
+INSERT INTO `chat_types` (`type_id`, `type`) VALUES
+	(1, 'direct'),
+	(2, 'group');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
