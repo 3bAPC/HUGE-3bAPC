@@ -42,11 +42,11 @@
             </div>
 
             <div class="chat-panel">
-                <?php if (!empty($this->messages)) {
+                <?php if ($this->selectedChatID > 0) { ?>
+                    <?php if (!empty($this->messages)) {
                     $currentUserID = (int) Session::get('user_id');
                     $messageCount = count($this->messages);
                 ?>
-
                 <div class="message-container">
                     <?php foreach ($this->messages as $index => $message) {
 
@@ -74,20 +74,24 @@
                     
                     <?php } ?>
                 </div>
+                    <?php } else { ?>
+                        <p class="empty-message-text">No messages yet. Start the conversation!</p>
+                    <?php } ?>
 
+                    <!-- Message Input & Button -->
+                    <div class="action-container">
+                        <form action="<?php echo Config::get('URL'); ?>chat/sendMessage" method="post">
+                            <input type="hidden" name="chatID" value="<?php echo $this->selectedChatID; ?>">
+
+                            <input class="message-input" type="text" name="messageContent" placeholder="Enter Message">
+                            <button type="submit">SendMessage</button>
+                        </form>
+                    </div>
                 <?php } else { ?>
-                    <p>No Messages - Start chatting!</p>
+                    <div class="test">
+                        <p>Select a friend from the list to start chatting.</p>
+                    </div>
                 <?php } ?>
-
-                <!-- Message Input & Button -->
-                <div class="action-container">
-                    <form action="<?php echo Config::get('URL'); ?>chat/sendMessage" method="post">
-                        <input type="hidden" name="chatID" value="<?php echo $this->selectedChatID; ?>">
-
-                        <input class="message-input" type="text" name="messageContent" placeholder="Enter Message">
-                        <button type="submit">SendMessage</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

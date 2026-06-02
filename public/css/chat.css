@@ -113,3 +113,12 @@ html { font-family: 'PT Sans', Georgia, serif; }
 	border-bottom-left-radius: 0.1em;
 	border-top-left-radius: 0.1em;
 }
+
+.empty-message-text {
+	text-align: center; 
+	margin-top: 2rem;
+}
+
+.test {
+	display: flex; height: 100%; align-items: center; justify-content: center; color: #777;
+}

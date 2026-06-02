@@ -13,6 +13,11 @@ class ChatModel {
      */
     public static function getDirectChatsOfUser($currentUserID) {
         $database = DatabaseFactory::getFactory()->getConnection();
+        $directChatTypeID = self::getDirectChatTypeID();
+
+        if (empty($directChatTypeID)) {
+            return array();
+        }
 
         $sql = "SELECT
                     c.chat_id,
@@ -32,13 +37,14 @@ class ChatModel {
                     ON cp_other.chat_id = c.chat_id
                 INNER JOIN users u
                     ON u.user_id = cp_other.user_id
-                WHERE c.chat_type = 1
+                WHERE c.chat_type = :direct_chat_type_id
                 AND cp_me.user_id = :current_user_id
                 AND cp_other.user_id != :not_current_user_id
                 ORDER BY c.chat_id DESC";
 
         $query = $database->prepare($sql);
         $query->execute(array(
+            ':direct_chat_type_id' => $directChatTypeID,
             ':current_user_id' => $currentUserID,
             ':not_current_user_id' => $currentUserID,
             ':current_user_id_unread' => $currentUserID
@@ -117,20 +123,26 @@ class ChatModel {
      */
     private static function getExistingDirectChatID($currentUserID, $otherUserID) {
         $database = DatabaseFactory::getFactory()->getConnection();
+        $directChatTypeID = self::getChatTypeID('direct');
+
+        if (empty($directChatTypeID)) {
+            return null;
+        }
 
         $sql = "SELECT c.chat_id
                 FROM chats c
-                INNER JOIN chat_participants cp1
-                    ON cp1.chat_id = c.chat_id
-                INNER JOIN chat_participants cp2
-                    ON cp2.chat_id = c.chat_id
-                WHERE c.chat_type = 1
-                AND cp1.user_id = :current_user_id
-                AND cp2.user_id = :other_user_id
+                INNER JOIN chat_participants cp
+                    ON cp.chat_id = c.chat_id
+                WHERE c.chat_type = :direct_chat_type_id
+                GROUP BY c.chat_id
+                HAVING COUNT(DISTINCT cp.user_id) = 2
+                AND SUM(cp.user_id = :current_user_id) = 1
+                AND SUM(cp.user_id = :other_user_id) = 1
                 LIMIT 1";
 
         $query = $database->prepare($sql);
         $query->execute(array(
+            ':direct_chat_type_id' => $directChatTypeID,
             ':current_user_id' => $currentUserID,
             ':other_user_id' => $otherUserID
         ));
@@ -160,24 +172,33 @@ class ChatModel {
                     VALUES (:chat_type, :chat_name)";
 
             $query = $database->prepare($sql);
-            $query->execute(array(
+            $chatWasCreated = $query->execute(array(
                 ':chat_type' => $chatTypeID,
                 ':chat_name' => $otherUser->user_name
             ));
 
+            if (!$chatWasCreated || $query->rowCount() !== 1) {
+                throw new RuntimeException('Could not create direct chat.');
+            }
+
             $chatID = (int) $database->lastInsertId();
 
-            $sql = "INSERT INTO chat_participants (chat_id, user_id)
-                    VALUES (:chat_id_current, :current_user_id),
-                           (:chat_id_other, :other_user_id)";
+            $sql = "INSERT INTO chat_participants (chat_id, user_id, last_seen)
+                    VALUES (:chat_id_current, :current_user_id, NOW()),
+                           (:chat_id_other, :other_user_id, :initial_last_seen)";
 
             $query = $database->prepare($sql);
-            $query->execute(array(
+            $participantsWereCreated = $query->execute(array(
                 ':chat_id_current' => $chatID,
                 ':current_user_id' => $currentUserID,
                 ':chat_id_other' => $chatID,
-                ':other_user_id' => $otherUserID
+                ':other_user_id' => $otherUserID,
+                ':initial_last_seen' => '2000-01-01 00:00:00'
             ));
+
+            if (!$participantsWereCreated || $query->rowCount() !== 2) {
+                throw new RuntimeException('Could not add chat participants.');
+            }
 
             $database->commit();
 
@@ -214,8 +235,8 @@ class ChatModel {
             return false;
         }
 
-        $sql = "INSERT INTO messages (chat_id, sent_from_id, content)
-                VALUES (:chat_id, :sent_from_id, :content)";
+        $sql = "INSERT INTO messages (chat_id, sent_from_id, content, timestamp)
+            VALUES (:chat_id, :sent_from_id, :content, NOW())";
         $query = $database->prepare($sql);
         $query->execute(array(
             ':chat_id' => $chatID,
@@ -245,5 +266,9 @@ class ChatModel {
         $chatType = $query->fetch();
 
         return $chatType ? (int) $chatType->type_id : null;
+    }
+
+    private static function getDirectChatTypeID() {
+        return self::getChatTypeID('direct');
     }
 }

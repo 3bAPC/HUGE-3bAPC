@@ -23,6 +23,7 @@ USE `huge`;
 CREATE TABLE IF NOT EXISTS `chat_participants` (
   `chat_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `last_seen` timestamp NOT NULL,
   KEY `chat_id` (`chat_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `fk_chat_participants_chat_id_chats_id` FOREIGN KEY (`chat_id`) REFERENCES `chats` (`chat_id`) ON DELETE CASCADE ON UPDATE NO ACTION,
@@ -31,13 +32,13 @@ CREATE TABLE IF NOT EXISTS `chat_participants` (
 
 -- Dumping data for table huge.chat_participants: ~6 rows (approximately)
 DELETE FROM `chat_participants`;
-INSERT INTO `chat_participants` (`chat_id`, `user_id`) VALUES
-	(1, 1),
-	(1, 4),
-	(2, 1),
-	(2, 5),
-	(3, 1),
-	(3, 2);
+INSERT INTO `chat_participants` (`chat_id`, `user_id`, `last_seen`) VALUES
+	(1, 1, '2026-06-02 17:23:50'),
+	(1, 4, '2026-06-02 17:24:12'),
+	(2, 1, '2026-06-02 17:23:46'),
+	(2, 5, '0000-00-00 00:00:00'),
+	(3, 1, '2026-06-02 17:23:43'),
+	(3, 2, '0000-00-00 00:00:00');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
