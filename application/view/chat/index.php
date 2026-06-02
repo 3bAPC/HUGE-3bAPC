@@ -39,7 +39,8 @@
                     $currentUserID = (int) Session::get('user_id');
                     $messageCount = count($this->messages);
                 ?>
-                <section class="discussion">
+
+                <div class="message-container">
                     <?php foreach ($this->messages as $index => $message) {
 
                         // Message style logic
@@ -65,11 +66,17 @@
                     <div class="bubble <?= $messageTypeClass . $positionClass; ?>"><?= $message->content; ?></div>
                     
                     <?php } ?>
-                </section>
+                </div>
 
                 <?php } else { ?>
                     <p>No Messages - Start chatting!</p>
                 <?php } ?>
+
+                <!-- Message Input & Button -->
+                <div class="action-container">
+                    <input class="message-input" type="text" id="messageContent" placeholder="Enter Message">
+                    <button>SendMessage</button>
+                </div>
             </div>
         </div>
     </div>
