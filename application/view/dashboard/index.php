@@ -11,5 +11,14 @@
             be redirected to /index/ as you are not logged in. You can protect a whole section in your app within the
             according controller by placing <i>Auth::handleLogin();</i> into the constructor.
         <p>
+
+        <h3>All existing Roles with MySQLi:</h3>
+
+        <ul>
+            <?php foreach ($this->allRoles as $role) { ?> 
+                <li><?= $role->role_name ?></li>
+            <?php } ?>
+        </ul>
+
     </div>
 </div>

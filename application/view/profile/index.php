@@ -31,6 +31,7 @@
                     <td>Activated ?</td>
                     <td>Link to user's profile</td>
                     <td>Role</td>
+                    <td>Chat</td>
                 </tr>
                 </thead>
                 <?php foreach ($this->users as $user) { ?>
@@ -49,6 +50,14 @@
                         </td>
                         <td>
                             <?= $user->user_role_name; ?>
+                        </td>
+
+                        <!-- Create new Chat with this user -->
+                        <td>
+                            <form action="<?php echo Config::get('URL'); ?>chat/createDirectChat" method="post">
+                                <input type="hidden" name="user_id" value="<?php echo $user->user_id; ?>">
+                                <button type="submit">Open Chat</button>
+                            </form>
                         </td>
                     </tr>
                 <?php } ?>

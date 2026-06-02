@@ -7,6 +7,26 @@
  */
 class UserRoleModel
 {
+
+    public static function getAllRoles() {
+        $database = DatabaseFactory::getFactory()->getMySqliConnection();
+
+        $query = "SELECT id, role_name FROM roles";
+        $result = $database->query($query);
+
+        if ($result) {
+            $roles = array();
+            while ($row = $result->fetch_object()) {
+                $roles[] = $row;
+            }
+            return $roles;
+        }
+        else {
+            return null;
+        }
+    }
+
+
     /**
      * Upgrades / downgrades the user's account. Currently it's just the field user_account_type in the database that
      * can be 1 or 2 (maybe "basic" or "premium"). Put some more complex stuff in here, maybe a pay-process or whatever

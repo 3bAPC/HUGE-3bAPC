@@ -8,6 +8,8 @@
     <link rel="icon" href="data:;base64,=">
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
+    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/chat.css" />
+    
 </head>
 <body>
     <!-- wrapper, to center website -->
@@ -30,6 +32,9 @@
                 </li>
                 <li <?php if (View::checkForActiveController($filename, "note")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>note/index">My Notes</a>
+                </li>
+                <li <?php if (View::checkForActiveController($filename, "chat")) { echo ' class="active" '; } ?> >
+                    <a href="<?php echo Config::get('URL'); ?>chat/index">Chats</a>
                 </li>
             <?php } else { ?>
                 <!-- for not logged in users -->

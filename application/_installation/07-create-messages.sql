@@ -21,19 +21,26 @@ USE `huge`;
 
 -- Dumping structure for table huge.messages
 CREATE TABLE IF NOT EXISTS `messages` (
-  `message_id` int(11) NOT NULL DEFAULT 0,
+  `message_id` int(11) NOT NULL AUTO_INCREMENT,
   `chat_id` int(11) NOT NULL DEFAULT 0,
   `sent_from_id` int(11) NOT NULL DEFAULT 0,
   `content` varchar(1500) NOT NULL,
+  `timestamp` timestamp NOT NULL,
   PRIMARY KEY (`message_id`) USING BTREE,
   KEY `sent_from_id` (`sent_from_id`) USING BTREE,
   KEY `chat_id` (`chat_id`) USING BTREE,
   CONSTRAINT `fk_chat_id_chats_id` FOREIGN KEY (`chat_id`) REFERENCES `chats` (`chat_id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_sent_from_id_users_id` FOREIGN KEY (`sent_from_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci COMMENT='This table is for each message sent';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci COMMENT='This table is for each message sent';
 
--- Dumping data for table huge.messages: ~0 rows (approximately)
+-- Dumping data for table huge.messages: ~5 rows (approximately)
 DELETE FROM `messages`;
+INSERT INTO `messages` (`message_id`, `chat_id`, `sent_from_id`, `content`, `timestamp`) VALUES
+	(1, 1, 4, 'this is for testing purposes', '2026-06-02 11:10:20'),
+	(2, 1, 1, 'Yes', '2026-06-02 11:39:10'),
+	(3, 1, 1, 'Test from User 1', '2026-06-02 11:35:19'),
+	(4, 1, 4, 'Testing from U4', '2026-06-02 11:35:40'),
+	(5, 1, 1, 'Old Message?', '2026-06-02 11:35:20');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
