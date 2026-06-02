@@ -49,7 +49,7 @@ class ChatModel {
      * Get all messages with chatID
      * @param mixed $chatID
      * @param mixed $currentUserID
-     * @return void
+     * @return array
      */
     public static function getChatMessages($chatID, $currentUserID) {
         $database = DatabaseFactory::getFactory()->getConnection();
@@ -63,7 +63,7 @@ class ChatModel {
                         WHERE cp.chat_id = m.chat_id
                         AND cp.user_id = :current_user_id
                     )
-                ORDER BY m.message_id ASC";
+                ORDER BY m.timestamp ASC, m.message_id ASC";
 
         $query = $database->prepare($sql);
         $query->execute(array(

@@ -279,12 +279,6 @@ body {
     border: 2px solid green;
 }
 
-/* .chat-user-list {
-    display: grid;
-    grid-template-columns: auto auto;
-    border: 2px solid blue;
-} */
-
 .chat-user {
     display: flex;
     border: 2px solid blue;

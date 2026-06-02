@@ -35,13 +35,40 @@
             </div>
 
             <div class="chat-panel">
-                <?php if (!empty($this->messages)) { ?>
-                    <!-- Show Messages -->
-                    <?php foreach ($this->messages as $message) { ?> 
-                        <p><?= $message->content ?></p>
+                <?php if (!empty($this->messages)) {
+                    $currentUserID = (int) Session::get('user_id');
+                    $messageCount = count($this->messages);
+                ?>
+                <section class="discussion">
+                    <?php foreach ($this->messages as $index => $message) {
+
+                        // Message style logic
+                        $previousMessage = ($index > 0) ? $this->messages[$index - 1] : null; // GetPrevious Message or set null if first
+                        $nextMessage = ($index < ($messageCount - 1)) ? $this->messages[$index + 1] : null; // GetNextMessage or set null if last
+                        $isSender = ((int) $message->sent_from_id === $currentUserID); // Check if message is from user logged in for color purposes
+                        $messageTypeClass = $isSender ? 'sender' : 'recipient'; // Define message classes for coloring and positon from isSender
+                        $hasPreviousFromSameSender = $previousMessage && ((int) $previousMessage->sent_from_id === (int) $message->sent_from_id); // Check if previous message is from same sender for styling
+                        $hasNextFromSameSender = $nextMessage && ((int) $nextMessage->sent_from_id === (int) $message->sent_from_id); // Check if next message is from same sender for styling
+                        $positionClass = '';
+
+                        // Set message classes
+                        if (!$hasPreviousFromSameSender && $hasNextFromSameSender) {
+                            $positionClass = ' first';
+                        } elseif ($hasPreviousFromSameSender && $hasNextFromSameSender) {
+                            $positionClass = ' middle';
+                        } elseif ($hasPreviousFromSameSender && !$hasNextFromSameSender) {
+                            $positionClass = ' last';
+                        }
+                    ?>
+                    
+                    <!-- Display Message -->
+                    <div class="bubble <?= $messageTypeClass . $positionClass; ?>"><?= $message->content; ?></div>
+                    
                     <?php } ?>
+                </section>
+
                 <?php } else { ?>
-                    <p>No Messages</p>
+                    <p>No Messages - Start chatting!</p>
                 <?php } ?>
             </div>
         </div>
