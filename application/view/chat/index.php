@@ -29,6 +29,13 @@
                             <a href="<?php echo Config::get('URL'); ?>chat/index?chatID=<?php echo $chat->chat_id; ?>" class="chat-button">
                                 Chat
                             </a>
+
+                            <!-- Display unread message count with a red border if greater than 0 -->
+                            <?php if (isset($chat->unread_count) && (int)$chat->unread_count > 0) : ?>
+                                <span class="unread-badge">
+                                    <?= $chat->unread_count; ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
                     <?php } ?>
                 </div>

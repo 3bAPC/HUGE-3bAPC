@@ -3,6 +3,10 @@
 class ChatModel {
 
     /**
+     * Fetches all direct chats for a user.
+     * Includes a subquery to count unread messages: 
+     * Messages NOT sent by current user and created AFTER the user last saw the chat.
+     * 
      * Get all direct chats of the user existing
      * @param mixed $currentUserID
      * @return array
@@ -15,7 +19,12 @@ class ChatModel {
                     u.user_id AS other_user_id,
                     u.user_name AS chat_name,
                     u.user_email,
-                    u.user_has_avatar
+                    u.user_has_avatar,
+                    (SELECT COUNT(*) FROM messages m 
+                     WHERE m.chat_id = c.chat_id 
+                     AND m.sent_from_id != :current_user_id_unread 
+                     AND (m.timestamp > cp_me.last_seen OR cp_me.last_seen IS NULL)
+                    ) AS unread_count
                 FROM chats c
                 INNER JOIN chat_participants cp_me
                     ON cp_me.chat_id = c.chat_id
@@ -31,7 +40,8 @@ class ChatModel {
         $query = $database->prepare($sql);
         $query->execute(array(
             ':current_user_id' => $currentUserID,
-            ':not_current_user_id' => $currentUserID
+            ':not_current_user_id' => $currentUserID,
+            ':current_user_id_unread' => $currentUserID
         ));
 
         $chats = $query->fetchAll();
@@ -43,6 +53,21 @@ class ChatModel {
         }
 
         return $chats;
+    }
+
+    /**
+     * Updates the last_seen timestamp for a specific user in a specific chat to the current time.
+     * 
+     * @param int $chatID
+     * @param int $userID
+     */
+    public static function updateLastSeen($chatID, $userID) {
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "UPDATE chat_participants SET last_seen = NOW() 
+                WHERE chat_id = :chat_id AND user_id = :user_id";
+        $query = $database->prepare($sql);
+        $query->execute(array(':chat_id' => $chatID, ':user_id' => $userID));
     }
 
     /**

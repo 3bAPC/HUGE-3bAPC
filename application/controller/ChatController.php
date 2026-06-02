@@ -22,6 +22,9 @@ class ChatController extends Controller
         $messages = null;
 
         if (!empty($selectedChatID)) {
+            // Updates the "last_seen" timestamp for this user in this specific chat
+            ChatModel::updateLastSeen($selectedChatID, $currentUserID);
+            
             $messages = ChatModel::getChatMessages($selectedChatID, $currentUserID);
         }
 
