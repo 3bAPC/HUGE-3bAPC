@@ -5,6 +5,83 @@
 	border: 1px solid black;
 }
 
+.chat-group-actions {
+    margin-top: 1rem;
+}
+
+.chat-dialog-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.chat-dialog-backdrop[hidden] {
+    display: none;
+}
+
+.chat-dialog {
+    width: 100%;
+    max-width: 22rem;
+    background: #fff;
+    border: 1px solid #000;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.chat-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chat-dialog-header h4 {
+    margin: 0;
+}
+
+.chat-group-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chat-group-form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.chat-group-user-list {
+    max-height: 12rem;
+    overflow-y: auto;
+    border: 1px solid #777;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-group-user-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 /* CHAT USER / GROUP LIST*/
 .chat-users {
     width: 30%; /* Increased width to prevent text/badge overlap */
@@ -25,6 +102,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.chat-user-type {
+	display: block;
+	font-size: 0.75rem;
 }
 
 /* Styled Unread Badge */
@@ -120,5 +202,9 @@ html { font-family: 'PT Sans', Georgia, serif; }
 }
 
 .test {
-	display: flex; height: 100%; align-items: center; justify-content: center; color: #777;
+	display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: #777;
 }

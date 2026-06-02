@@ -20,6 +20,9 @@ class ChatController extends Controller
         $currentUserID = (int) Session::get('user_id');
         $selectedChatID = (int) Request::get('chatID');
         $messages = null;
+        $availableUsers = array_filter(UserModel::getPublicProfilesOfAllUsers(), function ($user) use ($currentUserID) {
+            return (int) $user->user_id !== $currentUserID && (int) $user->user_active === 1 && (int) $user->user_deleted === 0;
+        });
 
         if (!empty($selectedChatID)) {
             // Updates the "last_seen" timestamp for this user in this specific chat
@@ -29,9 +32,10 @@ class ChatController extends Controller
         }
 
         $this->View->render('chat/index', array(
-            'chats' => ChatModel::getDirectChatsOfUser($currentUserID),
+            'chats' => ChatModel::getChatsOfUser($currentUserID),
             'messages' => $messages,
-            'selectedChatID' => $selectedChatID
+            'selectedChatID' => $selectedChatID,
+            'availableUsers' => $availableUsers
         ));
     }
 
@@ -52,6 +56,25 @@ class ChatController extends Controller
         }
 
         Redirect::to('profile/index');
+    }
+
+    public function createGroupChat() {
+        $currentUserID = (int) Session::get('user_id');
+        $groupName = Request::post('group_name', true);
+        $participantIDs = Request::post('participant_ids');
+
+        if (!is_array($participantIDs)) {
+            $participantIDs = array();
+        }
+
+        $chatID = ChatModel::createGroupChat($currentUserID, $groupName, $participantIDs);
+
+        if (!empty($chatID)) {
+            Redirect::to('chat/index?chatID=' . $chatID);
+            return;
+        }
+
+        Redirect::to('chat/index');
     }
 
     public function sendMessage() {

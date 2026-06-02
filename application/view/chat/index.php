@@ -9,6 +9,41 @@
         <div>
             Here you can Chat with your friends or even create chat groups and chat with multiple friends at once!
         </div>
+        <div class="chat-group-actions">
+            <button type="button" id="open-group-chat-dialog">Create Group Chat</button>
+        </div>
+        <div id="group-chat-dialog-backdrop" class="chat-dialog-backdrop" hidden>
+            <div class="chat-dialog" role="dialog" aria-modal="true" aria-labelledby="group-chat-dialog-title">
+                <div class="chat-dialog-header">
+                    <h4 id="group-chat-dialog-title">Create Group Chat</h4>
+                    <button type="button" id="close-group-chat-dialog">Close</button>
+                </div>
+
+                <form action="<?php echo Config::get('URL'); ?>chat/createGroupChat" method="post" class="chat-group-form">
+                    <label for="group_name">Group Name</label>
+                    <input id="group_name" type="text" name="group_name" required>
+
+                    <span>Select Users</span>
+                    <div class="chat-group-user-list">
+                        <?php if (!empty($this->availableUsers)) { ?>
+                            <?php foreach ($this->availableUsers as $user) { ?>
+                                <label class="chat-group-user-option">
+                                    <input type="checkbox" name="participant_ids[]" value="<?= $user->user_id; ?>">
+                                    <span><?= $user->user_name; ?></span>
+                                </label>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <p>No other active users are available for a group chat.</p>
+                        <?php } ?>
+                    </div>
+
+                    <div class="chat-dialog-actions">
+                        <button type="submit">Create Group Chat</button>
+                        <button type="button" id="cancel-group-chat-dialog">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <br>
         <div class="chat-container">
 
@@ -24,6 +59,7 @@
 
                             <div class="chat-user-username">
                                 <span class="chat-user-name"><?= $chat->chat_name; ?></span>
+                                <span class="chat-user-type"><?= ucfirst($chat->chat_type_name); ?></span>
                             </div>
 
                             <a href="<?php echo Config::get('URL'); ?>chat/index?chatID=<?php echo $chat->chat_id; ?>" class="chat-button">
@@ -96,3 +132,34 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        var backdrop = document.getElementById('group-chat-dialog-backdrop');
+        var openButton = document.getElementById('open-group-chat-dialog');
+        var closeButton = document.getElementById('close-group-chat-dialog');
+        var cancelButton = document.getElementById('cancel-group-chat-dialog');
+
+        if (!backdrop || !openButton || !closeButton || !cancelButton) {
+            return;
+        }
+
+        var showDialog = function () {
+            backdrop.hidden = false;
+        };
+
+        var hideDialog = function () {
+            backdrop.hidden = true;
+        };
+
+        openButton.addEventListener('click', showDialog);
+        closeButton.addEventListener('click', hideDialog);
+        cancelButton.addEventListener('click', hideDialog);
+
+        backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop) {
+                hideDialog();
+            }
+        });
+    }());
+</script>
