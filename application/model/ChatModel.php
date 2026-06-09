@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 class ChatModel {
 
@@ -20,60 +20,13 @@ class ChatModel {
             return array();
         }
 
-        $sql = "SELECT *
-                FROM (
-                    SELECT
-                    c.chat_id,
-                    u.user_id AS other_user_id,
-                    u.user_name AS chat_name,
-                    u.user_email,
-                    u.user_has_avatar,
-                    'direct' AS chat_type_name,
-                    (SELECT COUNT(*) FROM messages m 
-                     WHERE m.chat_id = c.chat_id 
-                     AND m.sent_from_id != :current_user_id_unread 
-                     AND (m.timestamp > cp_me.last_seen OR cp_me.last_seen IS NULL)
-                    ) AS unread_count
-                FROM chats c
-                INNER JOIN chat_participants cp_me
-                    ON cp_me.chat_id = c.chat_id
-                INNER JOIN chat_participants cp_other
-                    ON cp_other.chat_id = c.chat_id
-                INNER JOIN users u
-                    ON u.user_id = cp_other.user_id
-                WHERE c.chat_type = :direct_chat_type_id
-                AND cp_me.user_id = :current_user_id
-                AND cp_other.user_id != :not_current_user_id
-                    UNION ALL
-                    SELECT
-                    c.chat_id,
-                    NULL AS other_user_id,
-                    c.name AS chat_name,
-                    NULL AS user_email,
-                    0 AS user_has_avatar,
-                    'group' AS chat_type_name,
-                    (SELECT COUNT(*) FROM messages m 
-                     WHERE m.chat_id = c.chat_id 
-                     AND m.sent_from_id != :current_user_id_unread_group
-                     AND (m.timestamp > cp_me.last_seen OR cp_me.last_seen IS NULL)
-                    ) AS unread_count
-                FROM chats c
-                INNER JOIN chat_participants cp_me
-                    ON cp_me.chat_id = c.chat_id
-                WHERE c.chat_type = :group_chat_type_id
-                AND cp_me.user_id = :current_user_id_group
-                ) chats_overview
-                ORDER BY chat_id DESC";
+        $sql = "CALL sp_get_chats_of_user(:current_user_id, :direct_chat_type_id, :group_chat_type_id)";
 
         $query = $database->prepare($sql);
         $query->execute(array(
-            ':direct_chat_type_id' => $directChatTypeID,
-            ':group_chat_type_id' => $groupChatTypeID,
             ':current_user_id' => $currentUserID,
-            ':current_user_id_group' => $currentUserID,
-            ':not_current_user_id' => $currentUserID,
-            ':current_user_id_unread' => $currentUserID,
-            ':current_user_id_unread_group' => $currentUserID
+            ':direct_chat_type_id' => $directChatTypeID,
+            ':group_chat_type_id' => $groupChatTypeID
         ));
 
         $chats = $query->fetchAll();
@@ -127,8 +80,7 @@ class ChatModel {
         $database->beginTransaction();
 
         try {
-            $sql = "INSERT INTO chats (chat_type, name)
-                    VALUES (:chat_type, :chat_name)";
+            $sql = "CALL sp_create_chat(:chat_type, :chat_name)";
 
             $query = $database->prepare($sql);
             $chatWasCreated = $query->execute(array(
@@ -136,11 +88,15 @@ class ChatModel {
                 ':chat_name' => $groupName
             ));
 
-            if (!$chatWasCreated || $query->rowCount() !== 1) {
+            $result = $query->fetch();
+
+            if (!$chatWasCreated || !$result || empty($result->chat_id)) {
                 throw new RuntimeException('Could not create group chat.');
             }
 
-            $chatID = (int) $database->lastInsertId();
+            $chatID = (int) $result->chat_id;
+            $query->closeCursor();
+
             $participantRows = array_merge(array((int) $currentUserID), $validParticipantIDs);
 
             $valuePlaceholders = array();
@@ -155,6 +111,7 @@ class ChatModel {
                     : '2000-01-01 00:00:00';
             }
 
+            // Note: Kept dynamic multi-insert as standard SQL since SP arrays are not natively supported
             $sql = "INSERT INTO chat_participants (chat_id, user_id, last_seen)
                     VALUES " . implode(', ', $valuePlaceholders);
             $query = $database->prepare($sql);
@@ -184,8 +141,7 @@ class ChatModel {
     public static function updateLastSeen($chatID, $userID) {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "UPDATE chat_participants SET last_seen = NOW() 
-                WHERE chat_id = :chat_id AND user_id = :user_id";
+        $sql = "CALL sp_update_last_seen(:chat_id, :user_id)";
         $query = $database->prepare($sql);
         $query->execute(array(':chat_id' => $chatID, ':user_id' => $userID));
     }
@@ -199,16 +155,7 @@ class ChatModel {
     public static function getChatMessages($chatID, $currentUserID) {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT m.*
-                FROM messages m
-                WHERE m.chat_id = :chat_id
-                    AND EXISTS (
-                        SELECT 1
-                        FROM chat_participants cp
-                        WHERE cp.chat_id = m.chat_id
-                        AND cp.user_id = :current_user_id
-                    )
-                ORDER BY m.timestamp ASC, m.message_id ASC";
+        $sql = "CALL sp_get_chat_messages(:chat_id, :current_user_id)";
 
         $query = $database->prepare($sql);
         $query->execute(array(
@@ -243,16 +190,7 @@ class ChatModel {
             return null;
         }
 
-        $sql = "SELECT c.chat_id
-                FROM chats c
-                INNER JOIN chat_participants cp
-                    ON cp.chat_id = c.chat_id
-                WHERE c.chat_type = :direct_chat_type_id
-                GROUP BY c.chat_id
-                HAVING COUNT(DISTINCT cp.user_id) = 2
-                AND SUM(cp.user_id = :current_user_id) = 1
-                AND SUM(cp.user_id = :other_user_id) = 1
-                LIMIT 1";
+        $sql = "CALL sp_get_existing_direct_chat_id(:direct_chat_type_id, :current_user_id, :other_user_id)";
 
         $query = $database->prepare($sql);
         $query->execute(array(
@@ -279,46 +217,23 @@ class ChatModel {
             return null;
         }
 
-        $database->beginTransaction();
-
         try {
-            $sql = "INSERT INTO chats (chat_type, name)
-                    VALUES (:chat_type, :chat_name)";
-
+            $sql = "CALL sp_create_direct_chat(:chat_type, :chat_name, :current_user_id, :other_user_id)";
             $query = $database->prepare($sql);
-            $chatWasCreated = $query->execute(array(
+            $query->execute(array(
                 ':chat_type' => $chatTypeID,
-                ':chat_name' => $otherUser->user_name
-            ));
-
-            if (!$chatWasCreated || $query->rowCount() !== 1) {
-                throw new RuntimeException('Could not create direct chat.');
-            }
-
-            $chatID = (int) $database->lastInsertId();
-
-            $sql = "INSERT INTO chat_participants (chat_id, user_id, last_seen)
-                    VALUES (:chat_id_current, :current_user_id, NOW()),
-                           (:chat_id_other, :other_user_id, :initial_last_seen)";
-
-            $query = $database->prepare($sql);
-            $participantsWereCreated = $query->execute(array(
-                ':chat_id_current' => $chatID,
+                ':chat_name' => $otherUser->user_name,
                 ':current_user_id' => $currentUserID,
-                ':chat_id_other' => $chatID,
-                ':other_user_id' => $otherUserID,
-                ':initial_last_seen' => '2000-01-01 00:00:00'
+                ':other_user_id' => $otherUserID
             ));
 
-            if (!$participantsWereCreated || $query->rowCount() !== 2) {
-                throw new RuntimeException('Could not add chat participants.');
+            $result = $query->fetch();
+            if ($result && isset($result->chat_id)) {
+                return (int) $result->chat_id;
             }
 
-            $database->commit();
-
-            return $chatID;
+            return null;
         } catch (Exception $exception) {
-            $database->rollBack();
             return null;
         }
     }
@@ -333,11 +248,7 @@ class ChatModel {
 
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT 1
-                FROM chat_participants
-                WHERE chat_id = :chat_id
-                    AND user_id = :user_id
-                LIMIT 1";
+        $sql = "CALL sp_check_chat_participant(:chat_id, :user_id)";
         $query = $database->prepare($sql);
         $query->execute(array(
             ':chat_id' => $chatID,
@@ -348,17 +259,17 @@ class ChatModel {
             Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
             return false;
         }
+        $query->closeCursor();
 
-        $sql = "INSERT INTO messages (chat_id, sent_from_id, content, timestamp)
-            VALUES (:chat_id, :sent_from_id, :content, NOW())";
+        $sql = "CALL sp_insert_message(:chat_id, :sent_from_id, :content)";
         $query = $database->prepare($sql);
-        $query->execute(array(
+        $success = $query->execute(array(
             ':chat_id' => $chatID,
             ':sent_from_id' => $currentUserID,
             ':content' => $messageContent,
         ));
 
-        if ($query->rowCount() === 1) return true;
+        if ($success) return true;
 
         Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
         return false;
@@ -367,10 +278,7 @@ class ChatModel {
     private static function getChatTypeID($typeName) {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "SELECT type_id
-                FROM chat_types
-                WHERE type = :type_name
-                LIMIT 1";
+        $sql = "CALL sp_get_chat_type_id(:type_name)";
 
         $query = $database->prepare($sql);
         $query->execute(array(
@@ -405,6 +313,7 @@ class ChatModel {
             $parameters[$placeholder] = $userID;
         }
 
+        // Kept as dynamic standard SQL as FIND_IN_SET in SP performs poorly with indexes
         $sql = "SELECT user_id
                 FROM users
                 WHERE user_id IN (" . implode(', ', $placeholders) . ")";
