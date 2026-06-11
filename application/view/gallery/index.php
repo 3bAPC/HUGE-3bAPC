@@ -22,11 +22,11 @@
                 if ($images) {
                     foreach($images as $image) {
                         $filename = basename($image);
-                        $imageURL = Config::get('URL') . 'fileUploads/' . Session::get('user_id') . '/' . $filename;
+                        $imageURL = Config::get('URL') . 'gallery/showImage/' . urlencode($filename);
 
-                        echo '<div class="gallery-image-wrapper">';
+                        echo '<a href="'. $imageURL .'" target="_blank">';
                         echo '<img src="'. $imageURL .'" alt="Gallery Image" />';
-                        echo '</div>';
+                        echo '</a>';
                     }
                 } else {
                     echo 'No images';

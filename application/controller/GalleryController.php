@@ -36,4 +36,22 @@ class GalleryController extends Controller
 
     }
 
+    /**
+     * Securely serves an image, ensuring only the correct user can access it.
+     */
+    public function showImage($filename) {
+        $userID = (int) Session::get('user_id');
+        $cleanFilename = basename(urldecode($filename));
+        $filePath = dirname(dirname(__DIR__)) . '/fileUploads/' . $userID . '/' . $cleanFilename;
+
+        if (file_exists($filePath)) {
+            $mime = mime_content_type($filePath);
+            header('Content-Type: ' . $mime);
+            readfile($filePath);
+        } else {
+            header("HTTP/1.0 404 Not Found");
+            echo "Image not found or access denied.";
+        }
+    }
+
 }
