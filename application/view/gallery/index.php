@@ -12,6 +12,7 @@
                 <input type="submit" value="Upload Image" name="submit">
             </form>
         </div>
+
         <div class="gallery-container">
             <?php
 
@@ -23,7 +24,9 @@
                         $filename = basename($image);
                         $imageURL = Config::get('URL') . 'fileUploads/' . Session::get('user_id') . '/' . $filename;
 
-                        echo '<img style="max-height: 500px; max-width: 250px" src="'. $imageURL .'" /><br />';
+                        echo '<div class="gallery-image-wrapper">';
+                        echo '<img src="'. $imageURL .'" alt="Gallery Image" />';
+                        echo '</div>';
                     }
                 } else {
                     echo 'No images';

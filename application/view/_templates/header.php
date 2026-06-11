@@ -9,6 +9,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/chat.css" />
+    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/gallery.css" />
     
 </head>
 <body>
