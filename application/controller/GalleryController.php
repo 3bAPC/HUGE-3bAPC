@@ -15,8 +15,7 @@ class GalleryController extends Controller
      * This method controls what happens when you move to /overview/index in your app.
      * Shows a list of all users.
      */
-    public function index()
-    {
+    public function index() {
         $this->View->render('gallery/index');
     }
 

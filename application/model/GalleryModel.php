@@ -33,7 +33,7 @@ class GalleryModel {
         $database = DatabaseFactory::getFactory()->getConnection();
 
         $filename = preg_replace('/[^a-zA-Z0-9. -]/', '_', basename($_FILES['fileUpload']['name']));
-        $targetDirectory = dirname(__DIR__) . '/fileUploads/' . $userID . '/';
+        $targetDirectory = dirname(dirname(__DIR__)) . '/fileUploads/' . $userID . '/';
         $targetFile = $targetDirectory  . time() . '_' . $filename;
         $targetFileSize = $_FILES['fileUpload']['size'];
 
@@ -50,7 +50,7 @@ class GalleryModel {
 
         $queryResult = $query->execute(array(
             ':owner' => $userID,
-            ':name' => $filename,
+            ':name' => time() . '_' . $filename,
             ':size' => $targetFileSize
         ));
 
