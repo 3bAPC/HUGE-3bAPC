@@ -30,15 +30,32 @@ class GalleryModel {
     }
 
     public static function uploadImage($userID) {
-        $filename = preg_replace('/[^a-zA-Z0-9. -]/', '_', basename($_FILES['fileUpload']['name']));
+        $database = DatabaseFactory::getFactory()->getConnection();
 
+        $filename = preg_replace('/[^a-zA-Z0-9. -]/', '_', basename($_FILES['fileUpload']['name']));
         $targetDirectory = dirname(__DIR__) . '/fileUploads/' . $userID . '/';
         $targetFile = $targetDirectory  . time() . '_' . $filename;
+        $targetFileSize = $_FILES['fileUpload']['size'];
 
         if (!file_exists($targetDirectory)) {
             mkdir($targetDirectory, 0777, true);
         }
 
         move_uploaded_file($_FILES['fileUpload']['tmp_name'], $targetFile);
+
+        // Save Image info into database
+        $sql = "INSERT INTO gallery (owner, name, size, timestamp)
+                VALUES (:owner, :name, :size, NOW())";
+        $query = $database->prepare($sql);
+
+        $queryResult = $query->execute(array(
+            ':owner' => $userID,
+            ':name' => $filename,
+            ':size' => $targetFileSize
+        ));
+
+        if ($queryResult) return true;
+        Session::add('feedback_negative', 'Something went wrong when saving into the database');
+        return false;
     }
 }
